@@ -2,11 +2,16 @@ import fetch from "isomorphic-fetch";
 import { Transport } from "./Transport";
 import { JSONRPCRequestData, getNotifications, getBatchRequests } from "../Request";
 import { ERR_UNKNOWN, JSONRPCError } from "../Error";
+
+type CredentialsOption = "omit" | "same-origin" | "include"
+
 class HTTPTransport extends Transport {
   public uri: string;
-  constructor(uri: string) {
+  private readonly credentials: CredentialsOption;
+  constructor(uri: string, credentials: CredentialsOption = "omit") {
     super();
     this.uri = uri;
+    this.credentials = credentials;
   }
   public connect(): Promise<any> {
     return Promise.resolve();
@@ -23,6 +28,7 @@ class HTTPTransport extends Transport {
           "Content-Type": "application/json",
         },
         body: JSON.stringify(this.parseData(data)),
+        credentials: this.credentials
       });
       // requirements are that notifications are successfully sent
       this.transportRequestManager.settlePendingRequest(notifications);
